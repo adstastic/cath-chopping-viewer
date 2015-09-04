@@ -404,6 +404,7 @@ app.View.SegmentList = Backbone.View.extend({
     console.log(this.model);
     var html = this.template( this.model );
     this.$el.html( html );
+
   },
   render: function() {
     console.log( "app.View.Segments.render" );
@@ -434,6 +435,7 @@ app.View.StructureObjectItem = Backbone.View.extend({
     '<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">' +
     '<span class="structure-object-item-color" style="background-color: <%- color %>"></span> <%- id %> <small>(<%- type %>)</small>' +
     '</button>' +
+    '<%- html %>' +
     '</div>'
   ),
   events: {
@@ -446,6 +448,9 @@ app.View.StructureObjectItem = Backbone.View.extend({
   console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el, html );
 
   var segments = this.model.get('segments').models
+  var segmentList = new app.View.SegmentList( {model: segments} );
+  console.log( "SegmentList has been created", segments, segmentList);
+  console.log(segmentList.render());;
 
   var html = this.template(this.model.toJSON());
   console.log('app.View.StructureObjectItem HTML', html);
