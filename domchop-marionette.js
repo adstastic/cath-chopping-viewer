@@ -409,8 +409,7 @@ app.View.SegmentItem = Backbone.View.extend({
 });
 
 app.View.SegmentList = Backbone.View.extend({
-  // tagName: 'ul'
-  className: 'segment-list',
+  el: '#cv-pdb-objects',
   template: _.template(
     '<ul class="segment-list"></ul>'
   ),
@@ -442,7 +441,7 @@ app.View.SegmentList = Backbone.View.extend({
 // Domain color legend
 app.View.StructureObjectItem = Backbone.View.extend({
   segments: null,
-  segmentList: null,
+  childView: null,
   tagName: 'li',
   className: 'structure-object-item',
   template: _.template(
@@ -450,7 +449,7 @@ app.View.StructureObjectItem = Backbone.View.extend({
     // '<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">' +
     '<span class="structure-object-item-color" style="background-color: <%- color %>"></span> <%- id %> <small>(<%- type %>)</small>' +
     // '</button>' +
-    '<div id=segment-items></div>' +
+    // '<div id=segment-items></div>' +
     '</div>'
   ),
   events: {
@@ -462,30 +461,23 @@ app.View.StructureObjectItem = Backbone.View.extend({
 
   console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el);
 
+  this.segments = this.model.get('segments').models
+  this.childView = new app.View.SegmentList( {model: this.segments} );
+
   var html = this.template(this.model.toJSON());
   console.log('app.View.StructureObjectItem HTML', html);
-  this.segments = this.model.get('segments').models;
-  var segments = this.segments;
-
-  this.segmentList = new app.View.SegmentList( {model: segments} );
-  var segmentList = this.segmentList;
-
-  console.log( "SegmentList has been created", segments, segmentList);
-  segmentList.render();
-
   this.$el.html( html );
+  // this.childView.$el = this.$('#segment-items')
+  this.childView.render();
   return this;
   },
 
   onClick: function() {
-    this.segments = this.model.get('segments').models;
-    var segments = this.segments;
-
-    this.segmentList = new app.View.SegmentList( {model: segments} );
-    var segmentList = this.segmentList;
-
+    segments = this.model.get('segments').models
+    childView = new app.View.SegmentList( {model: segments} );
     console.log( "SegmentList has been created", segments, segmentList);
     segmentList.render();
+    // var segmentList = new app.View.SegmentList( {model : segments} );
     segments.forEach(function(model) {
       console.log(model.get('parent').id, model.get('start'), model.get('end'));
     });
@@ -583,6 +575,7 @@ app.View.StructureObjectList = Backbone.View.extend({
 //   }
 // });
 
+
 app.App = Backbone.View.extend({
   el: '#cv-container',
   viewer: null,
@@ -610,9 +603,16 @@ app.App = Backbone.View.extend({
 
     this.pdb = new app.Model.Pdb();
 
+    app.App.StructureSegmentView = new Backbone.Marionette.Application();
+
+    app.App.StructureSegmentView.addRegions({
+      mainRegion: "#cv-pdb-objects"
+    })
+
     this.structureObjectList = new app.Collection.StructureObjectList();
 
     this.structureObjectView = new app.View.StructureObjectList({ collection: this.structureObjectList });
+
 
     this.setActiveColorer( 'colorByChopping' );
     // this.setActiveColorer( 'colorBySS' );

@@ -118,11 +118,27 @@ ul.segment-list {
   <!-- Javascript code -->
   <!-- =============== -->
 
+  <!-- Marionette code -->
+  <script type="text/template" id="accordion-group-template">
+    <div class="accordion-heading">
+     <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#segment-list" href="#segment<%= parent.id %>.<%= segment_number %>"><%- parent.id %>.<%- segment_number %> <%- start %> <%- end %></a>
+   </div>
+
+   <div id="segment<%= segment_number %>" class="accordion-body collapse" style="height: 0px;">
+     <div class="accordion-inner">
+       <ul>
+       </ul>
+     </div>
+   </div>
+ </script>
+
+  <script type='text/javascript' src='./backbone.marionette/backbone.marionette.js'></script>
+
   <!-- bio-pv code -->
   <script type='text/javascript' src='./pv/bio-pv.min.js'></script>
 
-  <script type='text/javascript' src='./domchop.js'>
-     console.log("domchop.js loaded");
+  <script type='text/javascript' src='./domchop-marionette.js'>
+     console.log("domchop-marionette.js loaded");
   </script>
 
 </body>
