@@ -398,7 +398,7 @@ app.View.SegmentList = Backbone.View.extend({
   el: '#cv-pdb-objects',
 
   template: _.template(
-    '<ul class="segment-list"></ul>'
+    '<ul class="structure-object-list"></ul>'
   ),
   initialize: function() {
     console.log(this.model);
@@ -432,9 +432,9 @@ app.View.StructureObjectItem = Backbone.View.extend({
   className: 'structure-object-item',
   template: _.template(
     '<div class="<%- type %>">' +
-    '<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">' +
+    //'<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">' +
     '<span class="structure-object-item-color" style="background-color: <%- color %>"></span> <%- id %> <small>(<%- type %>)</small>' +
-    '</button>' +
+    //'</button>' +
     '<%- html %>' +
     '</div>'
   ),
@@ -445,16 +445,15 @@ app.View.StructureObjectItem = Backbone.View.extend({
   },
   render: function() {
 
-  console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el, html );
+  console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el);
 
   var segments = this.model.get('segments').models
   var segmentList = new app.View.SegmentList( {model: segments} );
   console.log( "SegmentList has been created", segments, segmentList);
-  console.log(segmentList.render());;
 
   var html = this.template(this.model.toJSON());
   console.log('app.View.StructureObjectItem HTML', html);
-  this.$el.html(html);
+  this.$el.html( html );
 
   return this;
   },
