@@ -377,12 +377,12 @@ app.View.PdbInfo = Backbone.View.extend({
 // Segments for each domain with drop down to select start/end
 app.View.SegmentItem = Backbone.View.extend({
 
-  tagName: 'li',
+  // tagName: 'li',
   className: 'segment-item',
   template: _.template(
-    '<div class="<%- segment_number %>">' +
+    '<a href="" class="segment_number">' +
     '<%- parent.id %>.<%- segment_number %> <%- start %> <%- end %>' +
-    '</div>'
+    '</a>'
   ),
 
   initialize: function() {
@@ -404,7 +404,10 @@ app.View.SegmentItem = Backbone.View.extend({
     this.$el.html(html);
     console.log( "app.View.SegmentItem.render", attr, this.$el, html );
 
-    return this;
+    return html;
+  },
+  info: function() {
+    return this.model.attributes
   },
 });
 
@@ -422,18 +425,21 @@ app.View.SegmentList = Backbone.View.extend({
   },
   render: function() {
     console.log( "app.View.Segments.render" );
+    var html = this.template( this.model );
 
-    var $list = this.$('ul.segment-list');
+    var $list = [];
     console.log("app.View.SegmentList", this);
 
     var i = 0;
     this.model.forEach(function(model) {
       model.attributes['segment_number'] = ++i;
       var item = new app.View.SegmentItem( { model: model } );
-      $list.append(item.render().$el);
-      console.log( "app.View.SegmentList.render", model, item, $list );
+      $list.push(item.render());
+      // $list.append(item.render().$el);
+      console.log( "app.View.SegmentList.render", model, item, $list.toJSON );
     }, this);
 
+    console.log(this.$el.html( html ));
     return this;
   },
 });
@@ -447,33 +453,50 @@ app.View.StructureObjectItem = Backbone.View.extend({
   className: 'structure-object-item',
   template: _.template(
     '<div class="<%- type %>">' +
-    // '<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">' +
+    '<a href="#segments" class="list-group-item list-group-item-default" data-toggle="collapse" data-parent="#MainMenu">' +
     '<span class="structure-object-item-color" style="background-color: <%- color %>"></span> <%- id %> <small>(<%- type %>)</small>' +
-    // '</button>' +
-    '<div id=segment-items></div>' +
+    '</a>' +
+    '<div class="collapse" id="<%- id %>">' +
+    '<%- this.segmentList %>' +
+    '</div>' +
     '</div>'
   ),
   events: {
     'click .remove': 'onRemove',
     'click .expand': 'onExpandSegments',
-    'click': 'onClick'
+    'click .click': 'onClick'
   },
   render: function() {
 
   console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el);
-
   var html = this.template(this.model.toJSON());
   console.log('app.View.StructureObjectItem HTML', html);
+
   this.segments = this.model.get('segments').models;
   var segments = this.segments;
+  /*
 
   this.segmentList = new app.View.SegmentList( {model: segments} );
   var segmentList = this.segmentList;
 
   console.log( "SegmentList has been created", segments, segmentList);
   segmentList.render();
+   */
+  var $list = [];
+  console.log("app.View.SegmentList", this);
+
+  var i = 0;
+  segments.forEach(function(model) {
+    model.attributes['segment_number'] = ++i;
+    var item = new app.View.SegmentItem( { model: model } );
+    $list.push(item.render());
+    // $list.append(item.render().$el);
+    console.log( "app.View.SegmentList.render", model.attributes, item.info(), $list );
+  }, this);
 
   this.$el.html( html );
+  this.segmentList = $list.toString();
+  console.log(html);
   return this;
   },
 
