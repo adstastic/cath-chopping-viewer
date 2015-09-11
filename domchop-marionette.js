@@ -449,7 +449,14 @@ DomainView = Backbone.Marionette.CompositeView.extend({
   logInfo: function(){
     console.log("DomainView", this.model);
   }
-})
+});
+
+AccordionView = Backbone.Marionette.CollectionView.extend({
+  id: "domainList",
+  className: "accordion",
+  itemView: DomainView
+});
+
 app.View.SegmentList = Backbone.View.extend({
   el: '#cv-pdb-objects',
   template: _.template(
