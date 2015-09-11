@@ -375,7 +375,7 @@ app.View.PdbInfo = Backbone.View.extend({
 });
 
 // Segments for each domain with drop down to select start/end
-app.View.SegmentItem = Backbone.View.extend({
+app.View.SegmentItem = Backbone.Marionette.ItemView.extend({
 
   tagName: 'li',
   className: 'segment-item',
@@ -408,6 +408,48 @@ app.View.SegmentItem = Backbone.View.extend({
   },
 });
 
+Segment = Backbone.Model.extend({});
+
+Segments = Backbone.Collection.extend({
+  model: app.App.Segment
+});
+
+SegmentView = Backbone.Marionette.ItemView.extend({
+  template: "#segment-template",
+  tagname: "li",
+  events: {
+    'click': 'logInfo'
+  },
+
+  logInfo: function(){
+    console.log("SegmentView", this.model);
+  }
+});
+
+Domain = Backbone.Model.extend({});
+
+Domains = Backbone.Collection.extend({
+  model: Domain
+});
+
+DomainView = Backbone.Marionette.CompositeView.extend({
+  template: "#accordion-group-template",
+  className: "accordion-group",
+  itemView: SegmentView,
+  itemViewContainer: "ul",
+
+  events: {
+    'click a': 'logInfo'
+  },
+
+  initialize: function() {
+    this.collection = this.model.get('segments');
+  },
+
+  logInfo: function(){
+    console.log("DomainView", this.model);
+  }
+})
 app.View.SegmentList = Backbone.View.extend({
   el: '#cv-pdb-objects',
   template: _.template(

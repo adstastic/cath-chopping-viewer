@@ -119,6 +119,10 @@ ul.segment-list {
   <!-- =============== -->
 
   <!-- Marionette code -->
+  <script type="text/template" id="segment-template">
+     <%= parent.id %> <%= segment_number %>
+   </script>
+
   <script type="text/template" id="accordion-group-template">
     <div class="accordion-heading">
      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#segment-list" href="#segment<%= parent.id %>.<%= segment_number %>"><%- parent.id %>.<%- segment_number %> <%- start %> <%- end %></a>
