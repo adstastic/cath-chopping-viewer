@@ -217,7 +217,7 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
     var domains = [];
     var chainId = param['id'];
     if ( !chainId ) {
-      console.error( "Failed to get CGI param 'id' (expected PDB chain id)" )
+      console.error( "Failed to get CGI param 'id' (expected PDB chain id)" );
       return false;
     }
     var pdbId = chainId.substr(0, 4);
@@ -240,7 +240,7 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
     this.get('domains').forEach(function(dom) {
       dom.get('segments').forEach(function(seg) {
         chainCodes.push( seg.chainCode );
-      })
+      });
     });
     console.log( "getChainCodes", self, self.domains, chainCodes, _.uniq( chainCodes ) );
     return _.uniq( chainCodes );
@@ -302,7 +302,7 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
         var domainId = pdbCode + chainCode + (domainCount < 10 ? '0' : '') + domainCount;
 
         segs.forEach( function(seg) {
-          seg['domainId'] = domainId;
+          seg.domainId = domainId;
           console.log("seg ", seg);
         });
 
@@ -343,6 +343,7 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
       params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
     }
 
+    console.log("params", params);
     return params;
   },
 });
@@ -380,22 +381,27 @@ app.View.SegmentItem = Backbone.View.extend({
   // tagName: 'li',
   className: 'segment-item',
   template: _.template(
-    '<a href="" class="segment_number">' +
-    '<%- parent.id %>.<%- segment_number %> <%- start %> <%- end %>' +
+    '<a href="#" class="list-group-item" id="<%- parent.id %>.<%- segment_number %>">' +
+    '<%- parent.id %>.<%- segment_number %>' +
+    '<select class="form-control" id="residue_number">' +
+
+    '</select><%- start %> <%- end %>' +
     '</a>'
   ),
-
+  events: {
+    'click': 'info'
+  },
   initialize: function() {
       console.log('SegmentItem has been created');
 
   },
   render: function() {
     var attr = this.model.attributes;
-    if (attr['start'] == null) {
-      attr['start'] = "null"
+    if (attr.start === null) {
+      attrstart = "null";
     }
-    if (attr['end'] == null) {
-      attr['end'] = "null"
+    if (attr.end === null) {
+      attr.end = "null";
     }
 
     var html = this.template(attr);
@@ -404,10 +410,12 @@ app.View.SegmentItem = Backbone.View.extend({
     this.$el.html(html);
     console.log( "app.View.SegmentItem.render", attr, this.$el, html );
 
+
+
     return html;
   },
   info: function() {
-    return this.model.attributes
+    console.log(this.model.attributes);
   },
 });
 
@@ -432,7 +440,7 @@ app.View.SegmentList = Backbone.View.extend({
 
     var i = 0;
     this.model.forEach(function(model) {
-      model.attributes['segment_number'] = ++i;
+      model.attributes.segment_number = ++i;
       var item = new app.View.SegmentItem( { model: model } );
       $list.push(item.render());
       // $list.append(item.render().$el);
@@ -452,12 +460,14 @@ app.View.StructureObjectItem = Backbone.View.extend({
   tagName: 'li',
   className: 'structure-object-item',
   template: _.template(
-    '<div class="<%- type %>">' +
-    '<a href="#segments" class="list-group-item list-group-item-default" data-toggle="collapse" data-parent="#MainMenu">' +
-    '<span class="structure-object-item-color" style="background-color: <%- color %>"></span> <%- id %> <small>(<%- type %>)</small>' +
+    '<div class="panel-heading" id="<%- type %>">' +
+    '<a class=list-group-item data-toggle="collapse" data-target="#segments<%- id %>">' +
+    '<span class="structure-object-item-color" style="background-color: <%- color %>"></span> <%- id %> <small>(<%- type %>)</small><b class="caret"></b>' +
     '</a>' +
-    '<div class="collapse" id="<%- id %>">' +
-    '<%- this.segmentList %>' +
+    '<div id="segments<%- id %>" class="collapse">' +
+    '<div class="list-group">' +
+    '<%= this.segmentList %>' +
+    '</div>' +
     '</div>' +
     '</div>'
   ),
@@ -469,8 +479,6 @@ app.View.StructureObjectItem = Backbone.View.extend({
   render: function() {
 
   console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el);
-  var html = this.template(this.model.toJSON());
-  console.log('app.View.StructureObjectItem HTML', html);
 
   this.segments = this.model.get('segments').models;
   var segments = this.segments;
@@ -487,34 +495,37 @@ app.View.StructureObjectItem = Backbone.View.extend({
 
   var i = 0;
   segments.forEach(function(model) {
-    model.attributes['segment_number'] = ++i;
+    model.attributes.segment_number = ++i;
     var item = new app.View.SegmentItem( { model: model } );
     $list.push(item.render());
     // $list.append(item.render().$el);
     console.log( "app.View.SegmentList.render", model.attributes, item.info(), $list );
   }, this);
 
+  this.segmentList = $list.join(" ");
+  console.log("segmentList HTML", this.segmentList);
+  var html = this.template(this.model.toJSON());
+  console.log('app.View.StructureObjectItem HTML', html);
+
   this.$el.html( html );
-  this.segmentList = $list.toString();
-  console.log(html);
   return this;
   },
 
-  onClick: function() {
-    this.segments = this.model.get('segments').models;
-    var segments = this.segments;
-
-    this.segmentList = new app.View.SegmentList( {model: segments} );
-    var segmentList = this.segmentList;
-
-    console.log( "SegmentList has been created", segments, segmentList);
-    segmentList.render();
-    segments.forEach(function(model) {
-      console.log(model.get('parent').id, model.get('start'), model.get('end'));
-    });
-
-    this.render();
-  }
+  // onClick: function() {
+  //   this.segments = this.model.get('segments').models;
+  //   var segments = this.segments;
+  //
+  //   this.segmentList = new app.View.SegmentList( {model: segments} );
+  //   var segmentList = this.segmentList;
+  //
+  //   console.log( "SegmentList has been created", segments, segmentList);
+  //   segmentList.render();
+  //   segments.forEach(function(model) {
+  //     console.log(model.get('parent').id, model.get('start'), model.get('end'));
+  //   });
+  //
+  //   this.render();
+  // }
 });
 
 app.View.StructureObjectList = Backbone.View.extend({
@@ -538,7 +549,7 @@ app.View.StructureObjectList = Backbone.View.extend({
   render: function() {
     console.log( "app.View.Choppings.render" );
 
-    var $list = this.$('ul.structure-object-list')
+    var $list = this.$('ul.structure-object-list');
 
     this.collection.each(function(model) {
       var item = new app.View.StructureObjectItem( { model: model } );
@@ -659,14 +670,13 @@ app.App = Backbone.View.extend({
         // to be given to the segment view for start/end drop down
         var allChainResidues = {};
         pvStructure.chains().forEach( function(ch) {
-          return ch.residues()
-          console.log(ch.residues());
+          console.log('Chain residues', ch.residues());
+          return ch.residues();
         });
 
         var bgColor = [ 0.9, 0.9, 0.9, 0.3 ];
 
         otherChainCodes.forEach( function(chainCode) {
-
           var obj = self.structureObjectList.add({
             id: pdbId + chainCode,
             label: 'Chain ' + chainCode,
@@ -726,9 +736,9 @@ app.App = Backbone.View.extend({
       var extendSelection = ev.shiftKey;
       var sel;
       if (extendSelection) {
-        var sel = picked.node().selection();
+        sel = picked.node().selection();
       } else {
-        var sel = picked.node().structure().createEmptyView();
+        sel = picked.node().structure().createEmptyView();
       }
       console.log(picked);
       // in case atom was not part of the view, we have to add it, because
@@ -812,6 +822,7 @@ app.App = Backbone.View.extend({
     var colorer = this.getColorer();
     colorer();
 
+
     var focusChainCode = this.structureObjectList.focusChainCode;
     if ( focusChainCode ) {
       console.log( "Fitting to chain " + focusChainCode );
@@ -833,6 +844,24 @@ app.App = Backbone.View.extend({
 
     var objectList = this.structureObjectList;
 
+    var residues = [];
+    for (var i = 1; i <= 547; i++) {
+      residues.push(i);
+    }
+
+    var residueSelect = document.getElementById('residue_number');
+    console.log(document.getElementById("residue_number"));
+    var fragment = document.createDocumentFragment();
+
+    residues.forEach(function(residue, index) {
+      var residueNumber = document.createElement('option');
+      residueNumber.innerHTML = residue;
+      residueNumber.value = residue;
+      fragment.appendChild(residueNumber);
+    });
+
+    residueSelect.appendChild(fragment);
+
     objectList.forEach( function(obj) {
       var segs = obj.get('segments');
       var colorname = obj.get('color');
@@ -847,14 +876,14 @@ app.App = Backbone.View.extend({
             console.log("Chain Code:", seg.get('chainCode'), "Start:", seg.get('start'), "Stop:", seg.get('end'));
             // seg.set({start : 310});
             console.log("Segment Parent ID", seg.get('parent').get('id'));
-          };
+          }
 
 
         var segView = seg.getMolView( structure );
         var uid = 'obj' + obj.cid + '-seg' + seg.cid;
         console.log( "colorByChopping.seg", uid, seg.toJSON(), segView.atomCount(), colorname );
         self.styleView( uid, segView, { color: c } );
-      })
+      });
     });
     return this;
   },
