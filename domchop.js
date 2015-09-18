@@ -146,6 +146,7 @@ app.Model.StructureObjectSegment = Backbone.RelationalModel.extend({
     end: null,
     chainCode: null,
     domainId: null,
+    segmentNo: null
   },
 
   // pvStructure is structure is pv.io.pdb(data) where data is contents of PDB file in text form
@@ -211,6 +212,11 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
 
   focusChainCode: null,
 
+  query: null,
+
+  initialize: function(options) {
+    _.extend(this, _.pick(options, "query"));
+  },
   populateFromCGIParams: function() {
     var param = this.parseCgiParam();
     console.log( "setChoppingFromCGIParams.param: ", param );
@@ -301,8 +307,10 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
 
         var domainId = pdbCode + chainCode + (domainCount < 10 ? '0' : '') + domainCount;
 
+        var segmentNo = 0;
         segs.forEach( function(seg) {
           seg.domainId = domainId;
+          seg.segmentNo = ++segmentNo;
           console.log("seg ", seg);
         });
 
@@ -333,7 +341,14 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
 
   // Parse parameters from URL to split chain
   parseCgiParam: function() {
-    var query = window.location.search.substring(1);
+    if (this.query === null) {
+      console.log('Taking query from URL substring');
+      var query = window.location.search.substring(1);
+    } else {
+      console.log('Taking query from manual input');
+      var query = this.query;
+    }
+
     var qs = query.split('+').join(' ');
     var params = {},
       tokens,
@@ -381,10 +396,9 @@ app.View.SegmentItem = Backbone.View.extend({
   // tagName: 'li',
   className: 'segment-item',
   template: _.template(
-    '<a href="#" class="list-group-item" id="<%- parent.id %>.<%- segment_number %>">' +
-    '<%- parent.id %>.<%- segment_number %>' +
+    '<a href="#" class="list-group-item" id="<%- parent.id %>.<%- segmentNo %>">' +
+    '<%- parent.id %>.<%- segmentNo %>' +
     '<select class="form-control" id="residue_number">' +
-
     '</select><%- start %> <%- end %>' +
     '</a>'
   ),
@@ -440,7 +454,7 @@ app.View.SegmentList = Backbone.View.extend({
 
     var i = 0;
     this.model.forEach(function(model) {
-      model.attributes.segment_number = ++i;
+      ifmodel.attributes.segment_number = ++i;
       var item = new app.View.SegmentItem( { model: model } );
       $list.push(item.render());
       // $list.append(item.render().$el);
@@ -452,11 +466,8 @@ app.View.SegmentList = Backbone.View.extend({
   },
 });
 
-
 // Domain color legend
 app.View.StructureObjectItem = Backbone.View.extend({
-  segments: null,
-  segmentList: null,
   tagName: 'li',
   className: 'structure-object-item',
   template: _.template(
@@ -474,32 +485,23 @@ app.View.StructureObjectItem = Backbone.View.extend({
   events: {
     'click .remove': 'onRemove',
     'click .expand': 'onExpandSegments',
-    'click .click': 'onClick'
+    'click': 'onClick'
   },
   render: function() {
 
   console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el);
 
-  this.segments = this.model.get('segments').models;
-  var segments = this.segments;
-  /*
+  var segments = this.model.get('segments').models;
 
-  this.segmentList = new app.View.SegmentList( {model: segments} );
-  var segmentList = this.segmentList;
 
-  console.log( "SegmentList has been created", segments, segmentList);
-  segmentList.render();
-   */
   var $list = [];
   console.log("app.View.SegmentList", this);
 
-  var i = 0;
-  segments.forEach(function(model) {
-    model.attributes.segment_number = ++i;
-    var item = new app.View.SegmentItem( { model: model } );
+  segments.forEach(function(segment) {
+    var item = new app.View.SegmentItem( { model: segment } );
     $list.push(item.render());
     // $list.append(item.render().$el);
-    console.log( "app.View.SegmentList.render", model.attributes, item.info(), $list );
+    console.log( "app.View.SegmentList.render", segment.attributes, item.info(), $list );
   }, this);
 
   this.segmentList = $list.join(" ");
@@ -511,21 +513,11 @@ app.View.StructureObjectItem = Backbone.View.extend({
   return this;
   },
 
-  // onClick: function() {
-  //   this.segments = this.model.get('segments').models;
-  //   var segments = this.segments;
-  //
-  //   this.segmentList = new app.View.SegmentList( {model: segments} );
-  //   var segmentList = this.segmentList;
-  //
-  //   console.log( "SegmentList has been created", segments, segmentList);
-  //   segmentList.render();
-  //   segments.forEach(function(model) {
-  //     console.log(model.get('parent').id, model.get('start'), model.get('end'));
-  //   });
-  //
-  //   this.render();
-  // }
+  onClick: function() {
+    this.model.get('segments').forEach(function(segment) {
+        console.log(segment.get('chainCode'), segment.get('parent').id+'.'+segment.get('segmentNo'), segment.get('start'), segment.get('end'));
+      });
+  }
 });
 
 app.View.StructureObjectList = Backbone.View.extend({
@@ -561,21 +553,6 @@ app.View.StructureObjectList = Backbone.View.extend({
     return this;
   },
 
-  events: {
-    'click .info': 'onClick'
-  },
-
-  onClick: function() {
-    this.collection.models.forEach(function(model) {
-      console.log(model);
-      console.log(model.get('segments'));
-      console.log(model.get('segments').models);
-      model.get('segments').models.forEach(function(model) {
-        console.log(model.get('parent').id, model.get('start'), model.get('end'));
-      });
-    });
-  }
-
   // onCreate: function() {
   // 	console.error( "Choppings.onCreate: Not yet implemented" );
   // },
@@ -585,40 +562,9 @@ app.View.StructureObjectList = Backbone.View.extend({
   //}
 });
 
-// app.App = Backbone.View.extend({
-//   el: '#cv-container',
-//   viewer: null,
-//   pdb: null,
-//   pdbInfo: null,
-//   structureObjectList: null,
-//   structureObjectView: null,
-//   activeColorer: null,
-//   focusChainCode: null,
-//   style: 'cartoon',
-//   events: {
-//     // 'click #cv-pdb-viewer': 'selectAtom'
-//   },
-//
-//   // It's the first function called when this view it's instantiated.
-//   initialize: function(){
-//     var self = this;
-//
-//       console.log( "app.View.StructureObjectList.render", model, item, $list );
-//
-//     return this;
-//   },
-//
-//   events: {
-//     'click .create': 'onCreate'
-//   },
-//
-//   onCreate: function() {
-//     console.error( "Choppings.onCreate: Not yet implemented" );
-//   }
-// });
-
 app.App = Backbone.View.extend({
   el: '#cv-container',
+  query: null,
   viewer: null,
   pdb: null,
   pdbInfo: null,
@@ -632,7 +578,9 @@ app.App = Backbone.View.extend({
   },
 
   // It's the first function called when this view it's instantiated.
-  initialize: function(){
+  initialize: function(options){
+    _.extend(this, _.pick(options, "query"));
+
     var self = this;
 
     console.log( "app.App.initialize", this );
@@ -644,7 +592,9 @@ app.App = Backbone.View.extend({
 
     this.pdb = new app.Model.Pdb();
 
-    this.structureObjectList = new app.Collection.StructureObjectList();
+    this.structureObjectList = new app.Collection.StructureObjectList({
+        query : this.query
+    });
 
     this.structureObjectView = new app.View.StructureObjectList({ collection: this.structureObjectList });
 
@@ -676,6 +626,7 @@ app.App = Backbone.View.extend({
 
         var bgColor = [ 0.9, 0.9, 0.9, 0.3 ];
 
+        var i = 0;
         otherChainCodes.forEach( function(chainCode) {
           var obj = self.structureObjectList.add({
             id: pdbId + chainCode,
@@ -684,19 +635,21 @@ app.App = Backbone.View.extend({
             color: bgColor,
           });
 
-          obj.get('segments').add( { chainCode: chainCode } );
+          obj.get('segments').add( {
+            chainCode: chainCode,
+            segmentNo: ++i
+          } );
         });
 
         // this.structureObjectList.each( function(dom) {
         //   dom.segments.each( function(seg) {
         //     var chainCode = seg.get('chainCode');
         //     var domainId = dom.get('domainId');
-        //     //residuesByChainCode[chainCode] ||= [];
-        //
+        //     residuesByChainCode[chainCode] ||= [];
         //   });
         // });
 
-        //console.log( "built structure object list: ", self.structureObjectList.toJSON() );
+        // console.log( "built structure object list: ", self.structureObjectList.toJSON() );
 
         self.render();
       });
@@ -897,4 +850,7 @@ app.App = Backbone.View.extend({
   },
   });
 
-var pdbViewer = new app.App();
+var queryString = 'colouring=chopping&id=1fup&chopping=1fup%20D79-109%5BB%5D%2B225-393%5BB%5D%20D110-224%5BB%5D%20D410-547%5BB%5D%20F43-78%5BB%5D%20F394-409%5BB%5D';
+var pdbViewer = new app.App({
+  query: queryString
+});
