@@ -1,0 +1,15 @@
+{
+  "name": "cath-chopping-viewer",
+  "version": "1.0.0",
+  "author": "Ian Sillitoe",
+  "contributors": [{
+    "name": "Aditya Mukherjee"
+    }],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adstastic/cath-chopping-viewer"
+  },
+  "dependencies": {
+    "brunch": "^1.8.5"
+  }
+}

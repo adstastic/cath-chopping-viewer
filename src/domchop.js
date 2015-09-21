@@ -97,7 +97,7 @@ console.log( "DEFINE app.Model.Pdb" );
 
 app.Model.Pdb = Backbone.Model.extend({
   //urlRoot: "/api/data/pdb",
-  urlRoot: "./pdb",
+  urlRoot: "./src/pdb",
   defaults: {
     pdbId: '',
     title: '',
