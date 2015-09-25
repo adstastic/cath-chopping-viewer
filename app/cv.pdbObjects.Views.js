@@ -22,13 +22,9 @@ app.View.SegmentItem = Backbone.Marionette.ItemView.extend({
       attr.end = "null";
     }
 
-    var html = this.template(attr);
-    console.log("app.View.SegmentItem HTML", html);
+    console.log( "app.View.SegmentItem.render", this );
 
-    this.$el.html(html);
-    console.log( "app.View.SegmentItem.render", attr, this.$el, html );
-
-    return html;
+    return this;
   },
 
   info: function() {
@@ -44,13 +40,10 @@ app.View.SegmentList = Backbone.Marionette.CollectionView.extend({
 
   initialize: function() {
     console.log("app.View.SegmentList.initialize", this.model);
-    var html = this.template( this.model );
-    this.$el.html( html );
   },
 
   render: function() {
     console.log( "app.View.Segments.render" );
-    var html = this.template( this.model );
 
     var $list = [];
     console.log("app.View.SegmentList", this);
@@ -63,7 +56,6 @@ app.View.SegmentList = Backbone.Marionette.CollectionView.extend({
       console.log( "app.View.SegmentList.render", model, item, $list.toJSON );
     }, this);
 
-    console.log(this.$el.html( html ));
     return this;
   },
 });
@@ -82,7 +74,7 @@ app.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
 
   render: function() {
 
-  console.log( "app.View.StructureObjectItem.render", this.model.toJSON(), this.$el);
+  console.log( "app.View.StructureObjectItem.render", this.model.toJSON());
 
   var segments = this.model.get('segments').models;
 
@@ -96,12 +88,6 @@ app.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
     console.log( "app.View.SegmentList.render", segment.attributes, item.info(), $list );
   }, this);
 
-  this.segmentList = $list.join(" ");
-  console.log("segmentList HTML", this.segmentList);
-  var html = this.template(this.model.toJSON());
-  console.log('app.View.StructureObjectItem HTML', html);
-
-  this.$el.html( html );
   return this;
   },
 
@@ -126,9 +112,7 @@ app.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
 
     this.segmentList = new app.View.SegmentList();
 
-    var html = this.template( this.collection.toJSON() );
     console.log('app.View.StructureObjectList HTML'. html);
-    this.$el.html( html );
   },
 
   render: function() {

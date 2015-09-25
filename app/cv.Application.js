@@ -10,93 +10,23 @@ var pvOpts = {
 // svn:/update/trunk/ddmake/colourlist.txt (got bored at 'gold')
 var domainColors = ['blue', 'red', 'green', 'yellow', 'pink', 'grey', 'purple', '#9cf', '#8e7', '#f80', '#0ff', '#863', '#385', '#f07', '#f0f', '#fa8', '#ee8', '#f90' ];
 
-app.App = Backbone.Marionette.Application.extend({
+app.View.Viewer = Backbone.Marionette.ItemView.extend({
   el: '#cv-container',
-  query: null,
   viewer: null,
-  pdb: null,
-  pdbInfo: null,
-  structureObjectList: null,
-  structureObjectView: null,
   activeColorer: null,
   focusChainCode: null,
   style: 'cartoon',
-
-  // It's the first function called when this view it's instantiated.
+  setRootLayout: function() {
+    this.root = new app.View.RootLayout();
+  },
   initialize: function(options){
-    _.extend(this, _.pick(options, "query"));
-
-    var self = this;
-
     console.log( "app.App.initialize", this );
 
     this.viewer = pv.Viewer( document.getElementById('cv-pdb-viewer'), pvOpts );
-    // console.log("VIEWER:", this.viewer);
-
-    this.pdb = new app.Model.Pdb();
-
-    this.structureObjectList = new app.Collection.StructureObjectList({
-        query : this.query
-    });
-
-    this.structureObjectView = new app.View.StructureObjectList({ collection: this.structureObjectList });
 
     this.setActiveColorer( 'colorByChopping' );
     // this.setActiveColorer( 'colorBySS' );
 
-    if ( this.structureObjectList.populateFromCGIParams() ) {
-
-      var pdbId = this.structureObjectList.pdbId;
-
-      //console.log( "cgiChopping", pdbId, this.activeColorer );
-
-      this.pdb.load( pdbId, function(pvStructure) {
-        var pdbInfoModel = self.pdb.get('pdbInfo');
-
-        self.pdbInfo = new app.View.PdbInfo({ model: pdbInfoModel });
-
-        var focusChainCode  = self.structureObjectList.focusChainCode;
-        var allChainCodes   = _.map( pvStructure.chains(), function(ch) { return ch.name(); } );
-        var otherChainCodes = _.filter( allChainCodes, function(chCode) { return chCode != focusChainCode ? chCode : false; });
-
-        // build up list of available residues for each chain
-        // to be given to the segment view for start/end drop down
-        var allChainResidues = {};
-        pvStructure.chains().forEach( function(ch) {
-          console.log('Chain residues', ch.residues());
-          return ch.residues();
-        });
-
-        var bgColor = [ 0.9, 0.9, 0.9, 0.3 ];
-
-        var i = 0;
-        otherChainCodes.forEach( function(chainCode) {
-          var obj = self.structureObjectList.add({
-            id: pdbId + chainCode,
-            label: 'Chain ' + chainCode,
-            type: 'CHAIN',
-            color: bgColor,
-          });
-
-          obj.get('segments').add( {
-            chainCode: chainCode,
-            segmentNo: ++i
-          } );
-        });
-
-        // this.structureObjectList.each( function(dom) {
-        //   dom.segments.each( function(seg) {
-        //     var chainCode = seg.get('chainCode');
-        //     var domainId = dom.get('domainId');
-        //     residuesByChainCode[chainCode] ||= [];
-        //   });
-        // });
-
-        // console.log( "built structure object list: ", self.structureObjectList.toJSON() );
-
-        self.render();
-      });
-    }
     this.on('click', this.selectAtom(this.viewer), this);
   },
   selectAtom: function(viewer){
@@ -240,24 +170,6 @@ app.App = Backbone.Marionette.Application.extend({
 
     var objectList = this.structureObjectList;
 
-    var residues = [];
-    for (var i = 1; i <= 547; i++) {
-      residues.push(i);
-    }
-
-    var residueSelect = document.getElementById('residue_number');
-    console.log(document.getElementById("residue_number"));
-    var fragment = document.createDocumentFragment();
-
-    residues.forEach(function(residue, index) {
-      var residueNumber = document.createElement('option');
-      residueNumber.innerHTML = residue;
-      residueNumber.value = residue;
-      fragment.appendChild(residueNumber);
-    });
-
-    residueSelect.appendChild(fragment);
-
     objectList.forEach( function(obj) {
       var segs = obj.get('segments');
       var colorname = obj.get('color');
@@ -295,6 +207,21 @@ colorBySS: function() {
 
   var queryString = 'colouring=chopping&id=1fup&chopping=1fup%20D79-109%5BB%5D%2B225-393%5BB%5D%20D110-224%5BB%5D%20D410-547%5BB%5D%20F43-78%5BB%5D%20F394-409%5BB%5D';
 
-  var pdbViewer = new app.App({
+  app.View.RootLayout = Marionette.LayoutView.extend({
+    el: "#cv-container",
+
+    regions: {
+      viewer: "#cv-pdb-viewer",
+      info: "#cv-pdb-info",
+      objects: "#cv-pdb-objects",
+      selection: "#cv-pdb-selection"
+    }
+  });
+
+  app.App = new App({
     query: queryString
+  });
+
+  app.App.on('before:start', function() {
+    app.App.setRootLayout();
   });
