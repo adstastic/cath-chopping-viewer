@@ -3,16 +3,30 @@ app.Controller = Backbone.Marionette.Object.extend({
   setRootLayout: function() {
     this.root = new app.View.RootLayout();
   },
-  initialize: function (options) {
+  start: function(options) {
     _.extend(this, _.pick(options, "query"));
-    this.pdb = new app.Model.Pdb();
     this.structureObjectList = new app.Collection.StructureObjectList({
         query : this.query
     });
+    
+    this.pdb = new app.Model.Pdb();
+    
     this.structureObjectView = new app.View.StructureObjectList({ collection: this.structureObjectList });
+  },
+  initialize: function (options) {
+    
+    var has_been_populated = 0;
+    
+    // initialise in one of many ways...
 
-
-    if ( this.structureObjectList.populateFromCGIParams() ) {
+    if ( options.structure_data ) {
+      has_been_populated = this.structureObjectList.populateFromOptions( options.structure_data );
+    }   
+    else {
+      has_been_populated = this.structureObjectList.populateFromCGIParams();
+    }
+    
+    if ( has_been_populated ) {
 
       var pdbId = this.structureObjectList.pdbId;
 
@@ -32,7 +46,7 @@ app.Controller = Backbone.Marionette.Object.extend({
         var allChainResidues = {};
         pvStructure.chains().forEach( function(ch) {
           console.log('Chain residues', ch.residues());
-          return ch.residues();
+          allChainResidues.push(ch.residues());
         });
 
         var bgColor = [ 0.9, 0.9, 0.9, 0.3 ];
