@@ -1,13 +1,14 @@
-var CCV = CCV || {};
+var CV = CV || {};
 
 var queryString = 'colouring=chopping&id=1fup&chopping=1fup%20D79-109%5BB%5D%2B225-393%5BB%5D%20D110-224%5BB%5D%20D410-547%5BB%5D%20F43-78%5BB%5D%20F394-409%5BB%5D';
 
-CCV.CCV.on('start', function () {
+CV.App.on('start', function () {
 		Backbone.history.start();
-		var controller = new CCV.Controller({
+		var controller = new CV.Controller({
 			query: queryString
 		});
+		controller.start();
 	});
 
-	// start the cvCCV CCV (defined in cv.CCVlication.js)
-	CCV.CCV.start();
+	// start the app (defined in cv.Application.js)
+	CV.App.start();

@@ -1,6 +1,6 @@
-console.log( "DEFINE CCV.Model.Pdb" );
+console.log( "DEFINE CV.Model.Pdb" );
 
-CCV.Model.Pdb = Backbone.Model.extend({
+CV.Model.Pdb = Backbone.Model.extend({
   //urlRoot: "/api/data/pdb",
   urlRoot: "./assets",
   defaults: {
@@ -13,7 +13,7 @@ CCV.Model.Pdb = Backbone.Model.extend({
     var url = this.urlRoot + '/' + pdbId;
     console.log(url);
     var self = this;
-    var pdbInfo = new CCV.Model.PdbInfo();
+    var pdbInfo = new CV.Model.PdbInfo();
 
     console.log( "pdb.load", pdbId, url);
     self.set({
@@ -47,4 +47,4 @@ CCV.Model.Pdb = Backbone.Model.extend({
 
 });
 
-console.log( "DEFINE CCV.Model.StructureObjectSegment" );
+console.log( "DEFINE CV.Model.StructureObjectSegment" );

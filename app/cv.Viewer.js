@@ -1,4 +1,4 @@
-var CCV = CCV || {};
+var CV = CV || {};
 
 var pvOpts = {
   width: 'auto',
@@ -11,16 +11,16 @@ var pvOpts = {
 // svn:/update/trunk/ddmake/colourlist.txt (got bored at 'gold')
 var domainColors = ['blue', 'red', 'green', 'yellow', 'pink', 'grey', 'purple', '#9cf', '#8e7', '#f80', '#0ff', '#863', '#385', '#f07', '#f0f', '#fa8', '#ee8', '#f90' ];
 
-CCV.View.Viewer = Backbone.Marionette.ItemView.extend({
+CV.View.Viewer = Backbone.Marionette.ItemView.extend({
   viewer: null,
   activeColorer: null,
   focusChainCode: null,
   style: 'cartoon',
   setRootLayout: function() {
-    this.root = new CCV.View.RootLayout();
+    this.root = new CV.View.RootLayout();
   },
   initialize: function(options){
-    console.log( "CCV.CCV.initialize", this );
+    console.log( "CV.CV.initialize", this );
 
     this.viewer = pv.Viewer( document.getElementById('cv-pdb-viewer'), pvOpts );
 

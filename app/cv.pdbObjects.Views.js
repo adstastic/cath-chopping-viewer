@@ -1,6 +1,6 @@
-var CCV = CCV || {};
+var CV = CV || {};
 // Segments for each domain with drop down to select start/end
-CCV.View.SegmentItem = Backbone.Marionette.ItemView.extend({
+CV.View.SegmentItem = Backbone.Marionette.ItemView.extend({
 
   template: '#template-segment-item',
   events: {
@@ -22,7 +22,7 @@ CCV.View.SegmentItem = Backbone.Marionette.ItemView.extend({
       attr.end = "null";
     }
 
-    console.log( "CCV.View.SegmentItem.render", this );
+    console.log( "CV.View.SegmentItem.render", this );
 
     return this;
   },
@@ -32,41 +32,41 @@ CCV.View.SegmentItem = Backbone.Marionette.ItemView.extend({
   },
 });
 
-CCV.View.SegmentList = Backbone.Marionette.CollectionView.extend({
+CV.View.SegmentList = Backbone.Marionette.CollectionView.extend({
 
   template: '#tempalate-segment-list',
 
-  ItemView: CCV.View.SegmentItem,
+  ItemView: CV.View.SegmentItem,
 
   initialize: function() {
-    console.log("CCV.View.SegmentList.initialize", this.model);
+    console.log("CV.View.SegmentList.initialize", this.model);
   },
 
   render: function() {
-    console.log( "CCV.View.Segments.render" );
+    console.log( "CV.View.Segments.render" );
 
     var $list = [];
-    console.log("CCV.View.SegmentList", this);
+    console.log("CV.View.SegmentList", this);
 
     var i = 0;
     this.model.forEach(function(model) {
       model.attributes.segment_number = ++i;
-      var item = new CCV.View.SegmentItem( { model: model } );
+      var item = new CV.View.SegmentItem( { model: model } );
       $list.push(item.render());
-      console.log( "CCV.View.SegmentList.render", model, item, $list.toJSON );
+      console.log( "CV.View.SegmentList.render", model, item, $list.toJSON );
     }, this);
 
     return this;
   },
 });
 
-CCV.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
+CV.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
 
   tagName: 'li',
 
   template: '#template-structure-object-item',
 
-  childView: CCV.View.SegmentList,
+  childView: CV.View.SegmentList,
 
   events: {
     'click': 'onClick'
@@ -74,18 +74,18 @@ CCV.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
 
   render: function() {
 
-  console.log( "CCV.View.StructureObjectItem.render", this.model.toJSON());
+  console.log( "CV.View.StructureObjectItem.render", this.model.toJSON());
 
   var segments = this.model.get('segments').models;
 
 
   var $list = [];
-  console.log("CCV.View.SegmentList", this);
+  console.log("CV.View.SegmentList", this);
 
   segments.forEach(function(segment) {
-    var item = new CCV.View.SegmentItem( { model: segment } );
+    var item = new CV.View.SegmentItem( { model: segment } );
     $list.push(item.render());
-    console.log( "CCV.View.SegmentList.render", segment.attributes, item.info(), $list );
+    console.log( "CV.View.SegmentList.render", segment.attributes, item.info(), $list );
   }, this);
 
   return this;
@@ -98,32 +98,32 @@ CCV.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
   }
 });
 
-CCV.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
+CV.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
 
   el: '#cv-pdb-objects',
 
   template: '#template-structure-object-list',
 
-  itemView: CCV.View.StructureObjectItem,
+  itemView: CV.View.StructureObjectItem,
 
   initialize: function() {
-    console.log( "CCV.View.Choppings.initialize" );
+    console.log( "CV.View.Choppings.initialize" );
     this.listenTo(this.collection, 'sync change', this.render);
 
-    this.segmentList = new CCV.View.SegmentList();
+    this.segmentList = new CV.View.SegmentList();
 
-    console.log('CCV.View.StructureObjectList HTML'. html);
+    console.log('CV.View.StructureObjectList HTML'. html);
   },
 
   render: function() {
-    console.log( "CCV.View.Choppings.render" );
+    console.log( "CV.View.Choppings.render" );
 
     var $list = this.$('ul.structure-object-list');
 
     this.collection.each(function(model) {
-      var item = new CCV.View.StructureObjectItem( { model: model } );
-      $list.CCVend(item.render().$el);
-      console.log( "CCV.View.StructureObjectList.render", model, item, $list );
+      var item = new CV.View.StructureObjectItem( { model: model } );
+      $list.append(item.render().$el);
+      console.log( "CV.View.StructureObjectList.render", model, item, $list );
     }, this);
 
     console.log(this.segmentList);

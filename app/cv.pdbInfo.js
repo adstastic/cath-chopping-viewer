@@ -1,6 +1,6 @@
-console.log( "DEFINE CCV.Model.PdbInfo" );
+console.log( "DEFINE CV.Model.PdbInfo" );
 
-CCV.Model.PdbInfo = Backbone.Model.extend({
+CV.Model.PdbInfo = Backbone.Model.extend({
   defaults: {
     header: null,
     title: null,

@@ -1,6 +1,6 @@
-var CCV = CCV || {};
+var CV = CV || {};
 
-CCV.Controller = Backbone.Marionette.Object.extend({
+CV.Controller = Backbone.Marionette.Object.extend({
 
   pdbInfo: null,
   pdb: null,
@@ -8,20 +8,24 @@ CCV.Controller = Backbone.Marionette.Object.extend({
   viewer: null,
 
   setRootLayout: function() {
-    this.root = new CCV.View.RootLayout();
+    this.root = new CV.View.RootLayout();
+  },
+
+  showPdbInfo: function(pdbInfoModel) {
+    this.pdbInfo = new CV.View.PdbInfo({ model: pdbInfoModel });
+    CV.App.Root.showChildView('info', new CV.View.PdbInfo({ model: this.pdbInfo}));
   },
 
   showStructureObjectList: function() {
     var pdbId = this.structureObjectList.pdbId;
 
-    //console.log( "cgiChopping", pdbId, this.activeColorer );
+    var self = this;
+    self.pdb.load( pdbId, function(pvStructure) {
 
-    this.pdb.load( pdbId, function(pvStructure) {
-      var pdbInfoModel = this.pdb.get('pdbInfo');
+      var pdbInfoModel = self.pdb.get('pdbInfo');
+      self.showPdbInfo(pdbInfoModel);
 
-      this.pdbInfo = new CCV.View.PdbInfo({ model: pdbInfoModel });
-
-      var focusChainCode  = this.structureObjectList.focusChainCode;
+      var focusChainCode  = self.structureObjectList.focusChainCode;
       var allChainCodes   = _.map( pvStructure.chains(), function(ch) { return ch.name(); } );
       var otherChainCodes = _.filter( allChainCodes, function(chCode) { return chCode != focusChainCode ? chCode : false; });
 
@@ -37,7 +41,7 @@ CCV.Controller = Backbone.Marionette.Object.extend({
 
       var i = 0;
       otherChainCodes.forEach( function(chainCode) {
-        var obj = this.structureObjectList.add({
+        var obj = self.structureObjectList.add({
           id: pdbId + chainCode,
           label: 'Chain ' + chainCode,
           type: 'CHAIN',
@@ -50,28 +54,29 @@ CCV.Controller = Backbone.Marionette.Object.extend({
         });
       });
     });
+    CV.App.Root.showChildView('objects', this.structureObjectView);
   },
 
   showViewer: function () {
-    this.viewer = new CCV.View.Viewer({
+    this.viewer = new CV.View.Viewer({
       pdb: this.pdb,
       pdbInfo: this.pdbInfo,
       structureObjectList: this.structureObjectList,
       structureObjectView: this.structureObjectView,
     });
 
-    CCV.root.showChildView('viewer', this.viewer);
+    CV.App.Root.showChildView('viewer', this.viewer);
   },
 
   initialize: function (options) {
     _.extend(this, _.pick(options, "query"));
-    this.structureObjectList = new CCV.Collection.StructureObjectList({
+    this.structureObjectList = new CV.Collection.StructureObjectList({
         query : this.query
     });
 
-    this.pdb = new CCV.App.Model.Pdb();
+    this.pdb = new CV.Model.Pdb();
 
-    this.structureObjectView = new CCV.View.StructureObjectList({
+    this.structureObjectView = new CV.View.StructureObjectList({
       collection: this.structureObjectList
     });
 
@@ -83,5 +88,9 @@ CCV.Controller = Backbone.Marionette.Object.extend({
     else {
       has_been_populated = this.structureObjectList.populateFromCGIParams();
     }
+  },
+  start: function() {
+    this.showStructureObjectList();
+    this.showViewer();
   }
 });
