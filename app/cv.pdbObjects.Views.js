@@ -1,4 +1,4 @@
-
+var app = app || {};
 // Segments for each domain with drop down to select start/end
 app.View.SegmentItem = Backbone.Marionette.ItemView.extend({
 

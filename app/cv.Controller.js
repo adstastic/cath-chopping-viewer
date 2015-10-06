@@ -1,31 +1,30 @@
+var app = app || {};
 
 app.Controller = Backbone.Marionette.Object.extend({
   setRootLayout: function() {
     this.root = new app.View.RootLayout();
   },
-  start: function(options) {
+  initialize: function (options) {
     _.extend(this, _.pick(options, "query"));
     this.structureObjectList = new app.Collection.StructureObjectList({
         query : this.query
     });
-    
+
     this.pdb = new app.Model.Pdb();
-    
+
     this.structureObjectView = new app.View.StructureObjectList({ collection: this.structureObjectList });
-  },
-  initialize: function (options) {
-    
+
     var has_been_populated = 0;
-    
+
     // initialise in one of many ways...
 
     if ( options.structure_data ) {
       has_been_populated = this.structureObjectList.populateFromOptions( options.structure_data );
-    }   
+    }
     else {
       has_been_populated = this.structureObjectList.populateFromCGIParams();
     }
-    
+
     if ( has_been_populated ) {
 
       var pdbId = this.structureObjectList.pdbId;
@@ -33,11 +32,11 @@ app.Controller = Backbone.Marionette.Object.extend({
       //console.log( "cgiChopping", pdbId, this.activeColorer );
 
       this.pdb.load( pdbId, function(pvStructure) {
-        var pdbInfoModel = self.pdb.get('pdbInfo');
+        var pdbInfoModel = this.pdb.get('pdbInfo');
 
         this.pdbInfo = new app.View.PdbInfo({ model: pdbInfoModel });
 
-        var focusChainCode  = self.structureObjectList.focusChainCode;
+        var focusChainCode  = this.structureObjectList.focusChainCode;
         var allChainCodes   = _.map( pvStructure.chains(), function(ch) { return ch.name(); } );
         var otherChainCodes = _.filter( allChainCodes, function(chCode) { return chCode != focusChainCode ? chCode : false; });
 
@@ -53,7 +52,7 @@ app.Controller = Backbone.Marionette.Object.extend({
 
         var i = 0;
         otherChainCodes.forEach( function(chainCode) {
-          var obj = self.structureObjectList.add({
+          var obj = this.structureObjectList.add({
             id: pdbId + chainCode,
             label: 'Chain ' + chainCode,
             type: 'CHAIN',

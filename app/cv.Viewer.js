@@ -1,3 +1,5 @@
+var app = app || {};
+
 var pvOpts = {
   width: 'auto',
   height: 600,

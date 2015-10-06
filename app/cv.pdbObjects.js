@@ -1,3 +1,4 @@
+var app = app || {};
 
 app.Model.StructureObjectSegment = Backbone.RelationalModel.extend({
   urlRoot: '/segment/',

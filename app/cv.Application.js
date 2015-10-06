@@ -4,7 +4,7 @@ app.Model = {};
 app.View = {};
 app.Collection = {};
 
-app.View.RootLayout = Marionette.LayoutView.extend({
+app.View.RootLayout = Backbone.Marionette.LayoutView.extend({
   el: "#cv-container",
 
   regions: {
@@ -15,15 +15,14 @@ app.View.RootLayout = Marionette.LayoutView.extend({
   }
 });
 
+
 var cvApp = Backbone.Marionette.Application.extend({
   setRootLayout: function () {
     this.root = new app.View.RootLayout();
   }
 });
 
-app.App = new cvApp({
-  query: queryString
-});
+app.App = new cvApp();
 
 app.App.on('before:start', function() {
   app.App.setRootLayout();
