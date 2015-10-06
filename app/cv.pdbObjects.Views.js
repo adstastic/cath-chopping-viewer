@@ -1,8 +1,8 @@
-var app = app || {};
+var CCV = CCV || {};
 // Segments for each domain with drop down to select start/end
-app.View.SegmentItem = Backbone.Marionette.ItemView.extend({
+CCV.View.SegmentItem = Backbone.Marionette.ItemView.extend({
 
-  template: '#segment-item',
+  template: '#template-segment-item',
   events: {
 
     'click': 'info'
@@ -22,7 +22,7 @@ app.View.SegmentItem = Backbone.Marionette.ItemView.extend({
       attr.end = "null";
     }
 
-    console.log( "app.View.SegmentItem.render", this );
+    console.log( "CCV.View.SegmentItem.render", this );
 
     return this;
   },
@@ -32,41 +32,41 @@ app.View.SegmentItem = Backbone.Marionette.ItemView.extend({
   },
 });
 
-app.View.SegmentList = Backbone.Marionette.CollectionView.extend({
+CCV.View.SegmentList = Backbone.Marionette.CollectionView.extend({
 
-  template: '#segment-list',
+  template: '#tempalate-segment-list',
 
-  ItemView: app.View.SegmentItem,
+  ItemView: CCV.View.SegmentItem,
 
   initialize: function() {
-    console.log("app.View.SegmentList.initialize", this.model);
+    console.log("CCV.View.SegmentList.initialize", this.model);
   },
 
   render: function() {
-    console.log( "app.View.Segments.render" );
+    console.log( "CCV.View.Segments.render" );
 
     var $list = [];
-    console.log("app.View.SegmentList", this);
+    console.log("CCV.View.SegmentList", this);
 
     var i = 0;
     this.model.forEach(function(model) {
       model.attributes.segment_number = ++i;
-      var item = new app.View.SegmentItem( { model: model } );
+      var item = new CCV.View.SegmentItem( { model: model } );
       $list.push(item.render());
-      console.log( "app.View.SegmentList.render", model, item, $list.toJSON );
+      console.log( "CCV.View.SegmentList.render", model, item, $list.toJSON );
     }, this);
 
     return this;
   },
 });
 
-app.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
+CCV.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
 
   tagName: 'li',
 
   template: '#template-structure-object-item',
 
-  childView: app.View.SegmentList,
+  childView: CCV.View.SegmentList,
 
   events: {
     'click': 'onClick'
@@ -74,18 +74,18 @@ app.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
 
   render: function() {
 
-  console.log( "app.View.StructureObjectItem.render", this.model.toJSON());
+  console.log( "CCV.View.StructureObjectItem.render", this.model.toJSON());
 
   var segments = this.model.get('segments').models;
 
 
   var $list = [];
-  console.log("app.View.SegmentList", this);
+  console.log("CCV.View.SegmentList", this);
 
   segments.forEach(function(segment) {
-    var item = new app.View.SegmentItem( { model: segment } );
+    var item = new CCV.View.SegmentItem( { model: segment } );
     $list.push(item.render());
-    console.log( "app.View.SegmentList.render", segment.attributes, item.info(), $list );
+    console.log( "CCV.View.SegmentList.render", segment.attributes, item.info(), $list );
   }, this);
 
   return this;
@@ -98,32 +98,32 @@ app.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
   }
 });
 
-app.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
+CCV.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
 
   el: '#cv-pdb-objects',
 
   template: '#template-structure-object-list',
 
-  itemView: app.View.StructureObjectItem,
+  itemView: CCV.View.StructureObjectItem,
 
   initialize: function() {
-    console.log( "app.View.Choppings.initialize" );
+    console.log( "CCV.View.Choppings.initialize" );
     this.listenTo(this.collection, 'sync change', this.render);
 
-    this.segmentList = new app.View.SegmentList();
+    this.segmentList = new CCV.View.SegmentList();
 
-    console.log('app.View.StructureObjectList HTML'. html);
+    console.log('CCV.View.StructureObjectList HTML'. html);
   },
 
   render: function() {
-    console.log( "app.View.Choppings.render" );
+    console.log( "CCV.View.Choppings.render" );
 
     var $list = this.$('ul.structure-object-list');
 
     this.collection.each(function(model) {
-      var item = new app.View.StructureObjectItem( { model: model } );
-      $list.append(item.render().$el);
-      console.log( "app.View.StructureObjectList.render", model, item, $list );
+      var item = new CCV.View.StructureObjectItem( { model: model } );
+      $list.CCVend(item.render().$el);
+      console.log( "CCV.View.StructureObjectList.render", model, item, $list );
     }, this);
 
     console.log(this.segmentList);

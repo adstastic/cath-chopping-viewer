@@ -1,10 +1,10 @@
-var app = app || {};
+var CCV = CCV || {};
 
-app.Model = {};
-app.View = {};
-app.Collection = {};
+CCV.Model = {};
+CCV.View = {};
+CCV.Collection = {};
 
-app.View.RootLayout = Backbone.Marionette.LayoutView.extend({
+CCV.View.RootLayout = Backbone.Marionette.LayoutView.extend({
   el: "#cv-container",
 
   regions: {
@@ -16,14 +16,14 @@ app.View.RootLayout = Backbone.Marionette.LayoutView.extend({
 });
 
 
-var cvApp = Backbone.Marionette.Application.extend({
+var CathChoppingViewer = Backbone.Marionette.Application.extend({
   setRootLayout: function () {
-    this.root = new app.View.RootLayout();
+    this.root = new CCV.View.RootLayout();
   }
 });
 
-app.App = new cvApp();
+CCV.App = new CathChoppingViewer();
 
-app.App.on('before:start', function() {
-  app.App.setRootLayout();
+CCV.App.on('before:start', function() {
+  CCV.App.setRootLayout();
 });

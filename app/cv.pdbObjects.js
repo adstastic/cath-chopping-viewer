@@ -1,6 +1,6 @@
-var app = app || {};
+var CCV = CCV || {};
 
-app.Model.StructureObjectSegment = Backbone.RelationalModel.extend({
+CCV.Model.StructureObjectSegment = Backbone.RelationalModel.extend({
   urlRoot: '/segment/',
   defaults: {
     start: null,
@@ -28,25 +28,25 @@ app.Model.StructureObjectSegment = Backbone.RelationalModel.extend({
   }
 });
 
-console.log( "DEFINE app.Collection.StructureObjectSegmentList" );
+console.log( "DEFINE CCV.Collection.StructureObjectSegmentList" );
 
 // Collection of StructureObjectSegment's
-app.Collection.StructureObjectSegmentList = Backbone.Collection.extend({
-  model: app.Model.StructureObjectSegment,
+CCV.Collection.StructureObjectSegmentList = Backbone.Collection.extend({
+  model: CCV.Model.StructureObjectSegment,
   // Using HTML5 localStorage instead of backend
   localStorage: new Backbone.LocalStorage( 'structure-object-segment-list' )
 });
 
-console.log( "DEFINE app.Model.StructureObjectItem" );
+console.log( "DEFINE CCV.Model.StructureObjectItem" );
 
 // When user action changes many models, instead of updating each model individually,
 // this configures relationalships between models and syncs all models with single call
-app.Model.StructureObjectItem = Backbone.RelationalModel.extend({
+CCV.Model.StructureObjectItem = Backbone.RelationalModel.extend({
   relations: [{
     type: Backbone.HasMany, // one-to-many relationship to collection StructureObjectSegmentList
     key: 'segments', // reference to attribute name on relatedModel
-    relatedModel: app.Model.StructureObjectSegment,
-    collectionType: app.Collection.StructureObjectSegmentList,
+    relatedModel: CCV.Model.StructureObjectSegment,
+    collectionType: CCV.Collection.StructureObjectSegmentList,
     reverseRelation: { // how StructureObjectSegmentList points back to StructureObjectItem
       key: 'parent',
       includeInJSON: 'id'
@@ -61,11 +61,11 @@ app.Model.StructureObjectItem = Backbone.RelationalModel.extend({
   },
 });
 
-console.log( "DEFINE app.Collection.StructureObjectList" );
+console.log( "DEFINE CCV.Collection.StructureObjectList" );
 // collection of StructureObjectItem's
-app.Collection.StructureObjectList = Backbone.Collection.extend({
+CCV.Collection.StructureObjectList = Backbone.Collection.extend({
 
-  model: app.Model.StructureObjectItem,
+  model: CCV.Model.StructureObjectItem,
 
   localStorage: new Backbone.LocalStorage( 'structure-object-list' ),
 
@@ -175,7 +175,7 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
           console.log("seg ", seg);
         });
 
-        var domObj = new app.Model.StructureObjectItem({
+        var domObj = new CCV.Model.StructureObjectItem({
           id: domainId,
           color: domainColors[domainCount - 1],
           label: 'CATH Domain ' + domainId,
@@ -183,8 +183,8 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
           segments: segs
         });
 
-        console.log("app.Collection.StructureObjectList.populateFromChoppingString().domObj", domObj);
-        console.log("app.Collection.StructureObjectList.populateFromChoppingString().segs", segs);
+        console.log("CCV.Collection.StructureObjectList.populateFromChoppingString().domObj", domObj);
+        console.log("CCV.Collection.StructureObjectList.populateFromChoppingString().segs", segs);
 
         self.add( domObj );
 
@@ -192,7 +192,7 @@ app.Collection.StructureObjectList = Backbone.Collection.extend({
       }
     });
 
-    console.log("app.Collection.StructureObjectList", self);
+    console.log("CCV.Collection.StructureObjectList", self);
     console.log( "Setting focusChainCode", focusChainCode );
     this.focusChainCode = focusChainCode;
     console.log( "Set focusChainCode", this, this.focusChainCode );

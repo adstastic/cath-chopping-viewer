@@ -1,6 +1,6 @@
-console.log( "DEFINE app.Model.Pdb" );
+console.log( "DEFINE CCV.Model.Pdb" );
 
-app.Model.Pdb = Backbone.Model.extend({
+CCV.Model.Pdb = Backbone.Model.extend({
   //urlRoot: "/api/data/pdb",
   urlRoot: "./assets",
   defaults: {
@@ -11,18 +11,23 @@ app.Model.Pdb = Backbone.Model.extend({
   },
   load: function( pdbId, callback ) {
     var url = this.urlRoot + '/' + pdbId;
+    console.log(url);
     var self = this;
-    var pdbInfo = new app.Model.PdbInfo();
+    var pdbInfo = new CCV.Model.PdbInfo();
 
     console.log( "pdb.load", pdbId, url);
-
     self.set({
       'pdbId': pdbId,
       'title': "PDB " + pdbId
     });
 
     // create molecular structure from pdb using bio-pv
-    $.ajax( url )
+    $.ajax({
+      url: url,
+      success: function(data){
+        console.log(data);
+      }
+    })
       .done(function(data) {
 
         pdbInfo.parseFromPdb(data);
@@ -42,4 +47,4 @@ app.Model.Pdb = Backbone.Model.extend({
 
 });
 
-console.log( "DEFINE app.Model.StructureObjectSegment" );
+console.log( "DEFINE CCV.Model.StructureObjectSegment" );
