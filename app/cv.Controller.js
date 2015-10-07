@@ -13,7 +13,10 @@ CV.Controller = Backbone.Marionette.Object.extend({
 
   showPdbInfo: function(pdbInfoModel) {
     this.pdbInfo = new CV.View.PdbInfo({ model: pdbInfoModel });
-    CV.App.Root.showChildView('info', new CV.View.PdbInfo({ model: this.pdbInfo}));
+    console.log(this.pdbInfo);
+    CV.App.Root.showChildView('info', new CV.View.PdbInfo({
+      model: this.pdbInfo
+    }));
   },
 
   showStructureObjectList: function() {
@@ -26,8 +29,12 @@ CV.Controller = Backbone.Marionette.Object.extend({
       self.showPdbInfo(pdbInfoModel);
 
       var focusChainCode  = self.structureObjectList.focusChainCode;
-      var allChainCodes   = _.map( pvStructure.chains(), function(ch) { return ch.name(); } );
-      var otherChainCodes = _.filter( allChainCodes, function(chCode) { return chCode != focusChainCode ? chCode : false; });
+      var allChainCodes   = _.map( pvStructure.chains(), function(ch) {
+        return ch.name();
+      });
+      var otherChainCodes = _.filter( allChainCodes, function(chCode) {
+        return chCode != focusChainCode ? chCode : false;
+      });
 
       // build up list of available residues for each chain
       // to be given to the segment view for start/end drop down
@@ -83,7 +90,7 @@ CV.Controller = Backbone.Marionette.Object.extend({
     var has_been_populated = 0;
 
     if ( options.structure_data ) {
-      has_been_populated = this.structureObjectList.populateFromOptions( options.query );
+      has_been_populated = this.structureObjectList.populateFromOptions(options.query);
     }
     else {
       has_been_populated = this.structureObjectList.populateFromCGIParams();
@@ -91,6 +98,6 @@ CV.Controller = Backbone.Marionette.Object.extend({
   },
   start: function() {
     this.showStructureObjectList();
-    this.showViewer();
+    // this.showViewer();
   }
 });

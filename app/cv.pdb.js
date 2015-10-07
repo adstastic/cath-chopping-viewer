@@ -40,6 +40,7 @@ CV.Model.Pdb = Backbone.Model.extend({
         });
 
         if ( callback ) {
+          console.log(callback);
           callback( structure );
         }
       });
