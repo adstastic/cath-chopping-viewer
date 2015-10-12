@@ -2,6 +2,7 @@
 CV.View.PdbInfo = Backbone.Marionette.ItemView.extend({
   template: '#template-pdb-info',
   initialize: function() {
-    console.log( "CV.View.PdbInfo", this );
+    console.log( "CV.View.PdbInfo.initialize()");
+    // this.render();
   }
 });

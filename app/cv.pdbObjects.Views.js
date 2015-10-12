@@ -100,8 +100,6 @@ CV.View.StructureObjectItem = Backbone.Marionette.CompositeView.extend({
 
 CV.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
 
-  el: '#cv-pdb-objects',
-
   template: '#template-structure-object-list',
 
   itemView: CV.View.StructureObjectItem,
@@ -113,6 +111,7 @@ CV.View.StructureObjectList = Backbone.Marionette.CollectionView.extend({
     this.segmentList = new CV.View.SegmentList();
 
     console.log('CV.View.StructureObjectList HTML'. html);
+    this.render();
   },
 
   render: function() {

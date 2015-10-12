@@ -25,7 +25,7 @@ CV.Model.Pdb = Backbone.Model.extend({
     $.ajax({
       url: url,
       success: function(data){
-        console.log(data);
+        console.log("PDB data loaded successfully");
       }
     })
       .done(function(data) {
@@ -33,14 +33,14 @@ CV.Model.Pdb = Backbone.Model.extend({
         pdbInfo.parseFromPdb(data);
 
         var structure = pv.io.pdb( data );
-        console.log("STRUCTURE: ", structure);
+        // console.log("STRUCTURE: ", structure);
         self.set({
           'pdbInfo': pdbInfo,
           'pvStructure': structure
         });
 
         if ( callback ) {
-          console.log(callback);
+          // console.log(callback);
           callback( structure );
         }
       });

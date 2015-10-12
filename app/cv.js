@@ -5,7 +5,7 @@ var queryString = 'colouring=chopping&id=1fup&chopping=1fup%20D79-109%5BB%5D%2B2
 CV.App.on('start', function () {
 		Backbone.history.start();
 		var controller = new CV.Controller({
-			query: queryString
+			structureData: queryString
 		});
 		controller.start();
 	});

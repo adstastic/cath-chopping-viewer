@@ -73,13 +73,35 @@ CV.Collection.StructureObjectList = Backbone.Collection.extend({
 
   focusChainCode: null,
 
-  query: null,
-
-  initialize: function(options) {
-    _.extend(this, _.pick(options, "query"));
-  },
   populateFromCGIParams: function() {
-    var param = this.parseCgiParam();
+    console.log('Taking query from URL substring');
+    var query = window.location.search.substring(1);
+    var param = this.parseCgiParam(query);
+    console.log( "setChoppingFromCGIParams.param: ", param );
+    var domains = [];
+    var chainId = param['id'];
+    if ( !chainId ) {
+      console.error( "Failed to get CGI param 'id' (expected PDB chain id)" );
+      return false;
+    }
+    var pdbId = chainId.substr(0, 4);
+    var choppingStr = param['chopping'];
+    if ( !choppingStr ) {
+      console.error( "Failed to get CGI param 'chopping' (expected chopping string)" );
+      return false;
+    }
+
+    this.pdbId = pdbId;
+
+    this.populateFromChoppingString( choppingStr );
+
+    return 1;
+  },
+
+  populateFromOptions: function(query) {
+    console.log('Taking query from manual input');
+
+    var param = this.parseCgiParam(query);
     console.log( "setChoppingFromCGIParams.param: ", param );
     var domains = [];
     var chainId = param['id'];
@@ -201,14 +223,7 @@ CV.Collection.StructureObjectList = Backbone.Collection.extend({
   },
 
   // Parse parameters from URL to split chain
-  parseCgiParam: function() {
-    if (this.query === null) {
-      console.log('Taking query from URL substring');
-      var query = window.location.search.substring(1);
-    } else {
-      console.log('Taking query from manual input');
-      var query = this.query;
-    }
+  parseCgiParam: function(query) {
 
     var qs = query.split('+').join(' ');
     var params = {},

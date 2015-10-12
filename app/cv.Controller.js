@@ -12,11 +12,8 @@ CV.Controller = Backbone.Marionette.Object.extend({
   },
 
   showPdbInfo: function(pdbInfoModel) {
-    this.pdbInfo = new CV.View.PdbInfo({ model: pdbInfoModel });
-    console.log(this.pdbInfo);
-    CV.App.Root.showChildView('info', new CV.View.PdbInfo({
-      model: this.pdbInfo
-    }));
+    var pdbInfoView = new CV.View.PdbInfo({model: pdbInfoModel});
+    CV.App.Root.showChildView('info', pdbInfoView);
   },
 
   showStructureObjectList: function() {
@@ -40,7 +37,7 @@ CV.Controller = Backbone.Marionette.Object.extend({
       // to be given to the segment view for start/end drop down
       var allChainResidues = [{}];
       pvStructure.chains().forEach( function(ch) {
-        console.log('Chain residues', ch.residues());
+        // console.log('Chain residues', ch.residues());
         allChainResidues.push(ch.residues());
       });
 
@@ -76,10 +73,7 @@ CV.Controller = Backbone.Marionette.Object.extend({
   },
 
   initialize: function (options) {
-    _.extend(this, _.pick(options, "query"));
-    this.structureObjectList = new CV.Collection.StructureObjectList({
-        query : this.query
-    });
+    this.structureObjectList = new CV.Collection.StructureObjectList();
 
     this.pdb = new CV.Model.Pdb();
 
@@ -89,8 +83,8 @@ CV.Controller = Backbone.Marionette.Object.extend({
 
     var has_been_populated = 0;
 
-    if ( options.structure_data ) {
-      has_been_populated = this.structureObjectList.populateFromOptions(options.query);
+    if ( options.structureData ) {
+      has_been_populated = this.structureObjectList.populateFromOptions(options.structureData);
     }
     else {
       has_been_populated = this.structureObjectList.populateFromCGIParams();
